@@ -14,10 +14,14 @@ public class MyPID extends Thread {
 		m_d = d;
 	}
 	
+	public void reset() {
+		total = 0;
+	}
+	
 	public double getPID(double error) {
 		if(error != -5) {
-			total += total;
-			double PID = m_p*(1/error) + m_i*total + m_d*derivitave;
+			total += error;
+			double PID = m_p*error + m_i*total + m_d*derivitave;
 			return PID;
 		} else {
 			return 0;
