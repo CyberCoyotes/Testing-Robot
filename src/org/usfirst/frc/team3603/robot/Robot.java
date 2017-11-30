@@ -1,5 +1,6 @@
 package org.usfirst.frc.team3603.robot;
 
+import com.ctre.CANTalon;
 import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.wpilibj.I2C;
@@ -17,6 +18,7 @@ public class Robot extends IterativeRobot {
 	Victor backRight = new Victor(2);
 	Victor frontLeft = new Victor(3);
 	Victor frontRight = new Victor(4);
+	CANTalon talon = new CANTalon(1);
 	
 	RobotDrive mainDrive = new RobotDrive(frontLeft, backLeft, frontRight, backRight);
 	
@@ -80,6 +82,7 @@ public class Robot extends IterativeRobot {
 		*/
 		lidar.start();
 		SmartDashboard.putNumber("Lidar Distance", lidar.getDistance());
+		SmartDashboard.putBoolean("Succes", lidar.success);
 		lidar.stop();
 		//SmartDashboard.putNumber("Gyro", navx.getAngle());
 	}

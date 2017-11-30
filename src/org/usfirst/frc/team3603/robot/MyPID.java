@@ -1,6 +1,7 @@
 package org.usfirst.frc.team3603.robot;
 
 public class MyPID extends Thread {
+	double scale;
 	double m_p;
 	double m_i;
 	double m_d;

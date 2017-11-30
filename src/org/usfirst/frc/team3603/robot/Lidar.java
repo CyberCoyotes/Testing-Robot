@@ -9,6 +9,7 @@ public class Lidar {
 	private I2C i2c;
 	private byte[] distance;
 	private java.util.Timer updater;
+	public boolean success;
 	
 	private final int LIDAR_ADDR = 0x62;
 	private final int LIDAR_CONFIG_REGISTER = 0x00;
@@ -44,7 +45,7 @@ public class Lidar {
 	
 	// Update distance variable
 	public void update() {
-		i2c.write(LIDAR_CONFIG_REGISTER, 0x04); // Initiate measurement
+		success = !i2c.write(LIDAR_CONFIG_REGISTER, 0x04); // Initiate measurement
 		Timer.delay(0.04); // Delay for measurement to be taken
 		i2c.read(LIDAR_DISTANCE_REGISTER, 2, distance); // Read in measurement
 		Timer.delay(0.005); // Delay to prevent over polling
