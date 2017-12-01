@@ -10,6 +10,7 @@ public class Lidar {
 	private byte[] distance;
 	private java.util.Timer updater;
 	public boolean success;
+	public boolean success2;
 	
 	private final int LIDAR_ADDR = 0x62;
 	private final int LIDAR_CONFIG_REGISTER = 0x00;
@@ -25,6 +26,8 @@ public class Lidar {
 	
 	// Distance in cm
 	public int getDistance() {
+		System.out.print(distance[0]);
+		System.out.println(distance[1]);
 		return (int)Integer.toUnsignedLong(distance[0] << 8) + Byte.toUnsignedInt(distance[1]);
 	}
 	
@@ -46,16 +49,15 @@ public class Lidar {
 	// Update distance variable
 	public void update() {
 		success = !i2c.write(LIDAR_CONFIG_REGISTER, 0x04); // Initiate measurement
-		Timer.delay(0.04); // Delay for measurement to be taken
-		i2c.read(LIDAR_DISTANCE_REGISTER, 2, distance); // Read in measurement
-		Timer.delay(0.005); // Delay to prevent over polling
+		//Timer.delay(0.04); // Delay for measurement to be taken
+		success2 = !i2c.read(LIDAR_DISTANCE_REGISTER, 2, distance); // Read in measurement
+		//Timer.delay(0.005); // Delay to prevent over polling
 	}
 	
 	// Timer task to keep distance updated
 	private class LIDARUpdater extends TimerTask {
 		public void run() {
 			update();
-			
 			while(true) {
 				update();
 				try {

@@ -24,23 +24,17 @@ public class Robot extends IterativeRobot {
 	
 	//Vision vision = new Vision();
 	Joystick joy1 = new Joystick(0);
-	Timer timer = new Timer();
 	//MyPID pid = new MyPID(0.5, 0.01, 0);
 	
-	AHRS navx = new AHRS(Port.kUSB);
-	
-	Lidar lidar = new Lidar(I2C.Port.kOnboard);
+	Lidar lidar;
 	
 	@Override
 	public void robotInit() {
-		timer.start();
 		backRight.setInverted(true);
     	frontRight.setInverted(true);
     	
     	mainDrive.setSafetyEnabled(false);
-    	
-    	//pid.start();
-    	
+    	lidar = new Lidar(I2C.Port.kMXP);
     	lidar.start();
 	}
 
@@ -80,10 +74,9 @@ public class Robot extends IterativeRobot {
 		SmartDashboard.putString("Keys", vision.getKeys());
 		SmartDashboard.putNumber("Derivitave", pid.derivitave);
 		*/
-		lidar.start();
 		SmartDashboard.putNumber("Lidar Distance", lidar.getDistance());
 		SmartDashboard.putBoolean("Succes", lidar.success);
-		lidar.stop();
+		SmartDashboard.putBoolean("Success2", lidar.success2);
 		//SmartDashboard.putNumber("Gyro", navx.getAngle());
 	}
 }
