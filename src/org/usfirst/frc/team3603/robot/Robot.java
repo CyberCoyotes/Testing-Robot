@@ -1,14 +1,10 @@
 package org.usfirst.frc.team3603.robot;
 
 import com.ctre.CANTalon;
-import com.kauailabs.navx.frc.AHRS;
-
 import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.RobotDrive;
-import edu.wpi.first.wpilibj.SerialPort.Port;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.Victor;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -60,6 +56,12 @@ public class Robot extends IterativeRobot {
 			pid.reset();
 		}
 		*/
+		if(joy1.getRawButton(2)) {
+			lidar.stop();
+		}
+		if(joy1.getRawButton(1)) {
+			lidar.start();
+		}
 		read();
 	}
 	
