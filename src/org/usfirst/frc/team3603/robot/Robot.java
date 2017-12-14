@@ -1,9 +1,12 @@
 package org.usfirst.frc.team3603.robot;
 
-import com.ctre.CANTalon;
+import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.PIDController;
+import edu.wpi.first.wpilibj.PIDOutput;
+import edu.wpi.first.wpilibj.PIDSource;
 import edu.wpi.first.wpilibj.RobotDrive;
 import edu.wpi.first.wpilibj.Victor;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -14,13 +17,14 @@ public class Robot extends IterativeRobot {
 	Victor backRight = new Victor(2);
 	Victor frontLeft = new Victor(3);
 	Victor frontRight = new Victor(4);
-	CANTalon talon = new CANTalon(1);
 	
 	RobotDrive mainDrive = new RobotDrive(frontLeft, backLeft, frontRight, backRight);
 	
-	//Vision vision = new Vision();
 	Joystick joy1 = new Joystick(0);
-	//MyPID pid = new MyPID(0.5, 0.01, 0);
+	ADXRS450_Gyro gyro = new ADXRS450_Gyro();
+	PIDController gyroCont = new PIDController(0.03, 0, 0, (PIDSource) gyro, (PIDOutput) mainDrive);
+	
+	Vision vision = new Vision();
 	
 	Lidar lidar;
 	
@@ -31,7 +35,6 @@ public class Robot extends IterativeRobot {
     	
     	mainDrive.setSafetyEnabled(false);
     	lidar = new Lidar(I2C.Port.kMXP);
-    	lidar.start();
 	}
 
 	@Override
@@ -44,23 +47,14 @@ public class Robot extends IterativeRobot {
 	
 	@Override
 	public void teleopPeriodic() {
-		/*
 		if(joy1.getRawButton(1)) {
-			double rotation = pid.getPID(vision.getSpeed());
-			mainDrive.mecanumDrive_Cartesian(0, 0, rotation, 0);
-		} else if(Math.abs(joy1.getRawAxis(0)) >= 0.1 || Math.abs(joy1.getRawAxis(1)) >= 0.1){
-			mainDrive.mecanumDrive_Cartesian(0, joy1.getRawAxis(1), joy1.getRawAxis(0), 0);
-			pid.reset();
-		} else {
-			mainDrive.mecanumDrive_Cartesian(0, 0, 0, 0);
-			pid.reset();
+			gyroCont.setSetpoint(vision.getAngle() + gyro.getAngle());
 		}
-		*/
 		if(joy1.getRawButton(2)) {
-			lidar.stop();
+			mainDrive.mecanumDrive_Cartesian(0, 0, gyroCont.get(), 0);
 		}
-		if(joy1.getRawButton(1)) {
-			lidar.start();
+		if(joy1.getRawButton(3)) {
+			gyroCont.enable();
 		}
 		read();
 	}
@@ -70,16 +64,10 @@ public class Robot extends IterativeRobot {
 	}
 	
 	public void read() {
-		/*
-		SmartDashboard.putNumber("Vision speed", vision.getSpeed());
-		SmartDashboard.putNumber("PID", pid.getPID(vision.getSpeed()));
-		SmartDashboard.putString("Keys", vision.getKeys());
-		SmartDashboard.putNumber("Derivitave", pid.derivitave);
-		*/
+		SmartDashboard.putNumber("PIDOutput1", gyroCont.get());
 		SmartDashboard.putNumber("Lidar Distance", lidar.getDistance());
 		SmartDashboard.putBoolean("Succes", lidar.success);
 		SmartDashboard.putBoolean("Success2", lidar.success2);
-		//SmartDashboard.putNumber("Gyro", navx.getAngle());
 	}
 }
 

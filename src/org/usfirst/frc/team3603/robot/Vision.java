@@ -22,27 +22,30 @@ public class Vision {
 		SmartDashboard.putString("Keys", s); //Publish the keys
 	}
 	
-	public boolean isWorking() {
+	public boolean isWorking() { //Checks if the table has keys. If there aren't any keys, it isn't working
 		Set<String> string = table.getKeys();
 		String s = string.toString();
 		working = (boolean) s.equals("[]") ? false : true;
 		return working;
 	}
 	
+	/**
+	 * Returns the average x-coordinate of all objects that meet the criteria, between pixels 1-400.
+	 * 1 is the leftmost pixel and 400 is the rightmost pixel
+	 */
 	public double getX() {
 		try {
 			double[] x = table.getNumberArray("centerX"); //get the x values from the Kangaroo
-			if(x.length != 0) { //If there are more than one x value...
+			if(x.length != 0) { //If there is one or more objects...
 				int numObjects = x.length; //Get the number of x's
-				double average = 0; //Create an integer
+				double average = 0; //Create an integer to store the average x-coordinate
 				for(int obj = 0; obj < numObjects; obj++) {
 					average = average + x[obj]; //Add all of the x values
 				}
 				average = average/numObjects; //Find the average x value
-				return average;
+				return average;//Return the average x-coordinate
 			} else { //Otherwise there are no contours
-				SmartDashboard.putString("Vision Status", "No contours");
-				return -5;
+				return -5; //If there are no contours, return -5
 			}
 		} catch(TableKeyNotDefinedException ex) { //If the key doesn't exist...
 			ex.printStackTrace();
@@ -55,46 +58,20 @@ public class Vision {
 		}
 	}
 	
+	
+	/**
+	 * This is the same as getX(), but it scales the x-coordinate from 1-400 to -1-1
+	 * @return
+	 */
 	public double getSpeed() {
-		try {
-			double[] x = table.getNumberArray("centerX");
-			if(x.length != 0) {
-				int numObjects = x.length;
-				double average = 0;
-				for(int obj = 0; obj < numObjects; obj++) {
-					average = average + x[obj];
-				}
-				average = average/numObjects;
-				double speed = average*0.003125-1; //Scale the average between -1 and 1
-				return speed;
-			} else {
-				SmartDashboard.putString("Vision Status", "Too many contours");
-				return -5;
-			}
-			
-		} catch(TableKeyNotDefinedException ex) {
-			ex.printStackTrace();
-			SmartDashboard.putString("Vision Status", "Table key not defined");
-			return 0;
-		} catch(ArrayIndexOutOfBoundsException ex) {
-			ex.printStackTrace();
-			SmartDashboard.putString("Vision Status", "Array index out of bounds");
-			return 0;
-		}
+		return getX()*0.003125-1;
 	}
 	
-	public double[] get(String key) {
-		//Gets all of the data for a specific key
-		try {
-			return table.getNumberArray(key);
-		} catch(TableKeyNotDefinedException ex) {
-			ex.printStackTrace();
-			SmartDashboard.putString("Vision Status", "Table key not defined: " + key);
-			return null;
-		}
+	public double getAngle() {
+		return getSpeed()*30;
 	}
 	
-	public String getKeys() { //Gives a list of keys
+	public String getKeys() { //Gives a list of keys (for error proofing)
 		Set<String> string = table.getKeys();
 		String s = string.toString();
 		return s;
@@ -109,12 +86,5 @@ public class Vision {
 			SmartDashboard.putString("Vision Status", "Table key not defined");
 			return 0;
 		}
-	}
-	
-	public void retry() { //Restart vision
-		table = NetworkTable.getTable("GRIP/cyberCoyotes");
-		Set<String> string = table.getKeys();
-		String s = string.toString();
-		SmartDashboard.putString("Keys", s);
 	}
 }

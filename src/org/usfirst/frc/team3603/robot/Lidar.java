@@ -8,7 +8,6 @@ import edu.wpi.first.wpilibj.I2C.Port;
 public class Lidar {
 	private I2C i2c;
 	private byte[] distance;
-	private byte[] thing;
 	private java.util.Timer updater;
 	public boolean success;
 	public boolean success2;
@@ -21,7 +20,6 @@ public class Lidar {
 		i2c = new I2C(port, LIDAR_ADDR);
 		
 		distance = new byte[2];
-		thing = new byte[1];
 		
 		updater = new java.util.Timer();
 	}
@@ -30,6 +28,10 @@ public class Lidar {
 	public int getDistance() {
 		//System.out.print(distance[0]);
 		//System.out.println(distance[1]);
+		success = !i2c.write(LIDAR_CONFIG_REGISTER, 0x04); // Initiate measurement
+		Timer.delay(0.04); // Delay for measurement to be taken
+		success2 = !i2c.read(LIDAR_DISTANCE_REGISTER, 2, distance); // Read in measurement
+		Timer.delay(0.005); // Delay to prevent over polling
 		return (int)Integer.toUnsignedLong(distance[0] << 8) + Byte.toUnsignedInt(distance[1]);
 	}
 	
@@ -52,16 +54,6 @@ public class Lidar {
 	public void update() {
 		success = !i2c.write(LIDAR_CONFIG_REGISTER, 0x04); // Initiate measurement
 		Timer.delay(0.04); // Delay for measurement to be taken
-		
-		i2c.read(0x01, 1, thing);
-		System.out.println(thing[0]);
-		int counter = 0;
-		while(thing[0] != 0 && counter < 50) {
-			i2c.read(0x01, 1, thing);
-			counter++;
-			Timer.delay(0.001);
-		}
-		
 		success2 = !i2c.read(LIDAR_DISTANCE_REGISTER, 2, distance); // Read in measurement
 		Timer.delay(0.005); // Delay to prevent over polling
 	}
@@ -70,16 +62,6 @@ public class Lidar {
 	private class LIDARUpdater extends TimerTask {
 		public void run() {
 			update();
-			/*
-			while(true) {
-				update();
-				try {
-					Thread.sleep(10);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
-			*/
 		}
 	}
 }
