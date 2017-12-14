@@ -47,6 +47,12 @@ public class Robot extends IterativeRobot {
 	
 	@Override
 	public void teleopPeriodic() {
+		double x = Math.pow(joy1.getRawAxis(0), 3);
+		double y = Math.pow(joy1.getRawAxis(1), 3);
+		double rot = Math.pow(joy1.getRawAxis(4), 3);
+		if(driveThreshold(x, y, rot)) {
+			mainDrive.mecanumDrive_Cartesian(x, y, rot, 0);
+		}
 		if(joy1.getRawButton(1)) {
 			gyroCont.setSetpoint(vision.getAngle() + gyro.getAngle());
 		}
@@ -57,6 +63,14 @@ public class Robot extends IterativeRobot {
 			gyroCont.enable();
 		}
 		read();
+	}
+	
+	boolean driveThreshold(double x, double y, double rot) {
+		if(Math.abs(x) > 0.05 || Math.abs(y) > 0.05 || Math.abs(rot) > 0.05) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 	
 	@Override
