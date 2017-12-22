@@ -1,5 +1,7 @@
 package org.usfirst.frc.team3603.robot;
 
+import javax.sound.sampled.AudioFormat.Encoding;
+
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.IterativeRobot;
@@ -9,6 +11,8 @@ import edu.wpi.first.wpilibj.PIDOutput;
 import edu.wpi.first.wpilibj.PIDSource;
 import edu.wpi.first.wpilibj.RobotDrive;
 import edu.wpi.first.wpilibj.Victor;
+import edu.wpi.first.wpilibj.CounterBase.EncodingType;
+import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Robot extends IterativeRobot {
@@ -22,9 +26,11 @@ public class Robot extends IterativeRobot {
 	
 	Joystick joy1 = new Joystick(0);
 	ADXRS450_Gyro gyro = new ADXRS450_Gyro();
+	Encoder enc = new Encoder(9, 8, false, EncodingType.k2X);
 	PIDController gyroCont = new PIDController(0.03, 0, 0, (PIDSource) gyro, (PIDOutput) mainDrive);
 	
 	Vision vision = new Vision();
+	double rate;
 	
 	Lidar lidar;
 	
@@ -35,6 +41,24 @@ public class Robot extends IterativeRobot {
     	
     	mainDrive.setSafetyEnabled(false);
     	lidar = new Lidar(I2C.Port.kMXP);
+    	enc.setDistancePerPulse((5.0*Math.PI)/256.0);
+    	
+    	Thread rateFinder = new Thread(() -> {
+    		while(true) {
+    			double d1 = enc.get()/256.0*5.0*Math.PI;
+    			d1 = d1/5280.0;
+    			try {
+					Thread.sleep(10);
+				} catch (InterruptedException e) {
+				}
+    			double d2 = enc.get()/256.0*5.0*Math.PI;
+    			d2 = d2/5280.0;
+    			double r = (d2-d1)/0.01;
+    			r = r/60/60;
+    			rate = r;
+    		}
+    	});
+    	rateFinder.start();
 	}
 
 	@Override
@@ -82,6 +106,7 @@ public class Robot extends IterativeRobot {
 		SmartDashboard.putNumber("Lidar Distance", lidar.getDistance());
 		SmartDashboard.putBoolean("Succes", lidar.success);
 		SmartDashboard.putBoolean("Success2", lidar.success2);
+		SmartDashboard.putNumber("MPH", rate);
 	}
 }
 
