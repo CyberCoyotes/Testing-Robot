@@ -29,6 +29,17 @@ public class Vision {
 		return working;
 	}
 	
+	public void retry() {
+		table = NetworkTable.getTable("GRIP/cyberVision"); //Begin the table with a key
+		
+		//See if there are keys in the table
+		Set<String> string = table.getKeys();
+		String s = string.toString();
+		working = (boolean) s.equals("[]") ? false : true;
+		
+		SmartDashboard.putString("Keys", s); //Publish the keys
+	}
+	
 	/**
 	 * Returns the average x-coordinate of all objects that meet the criteria, between pixels 1-400.
 	 * 1 is the leftmost pixel and 400 is the rightmost pixel

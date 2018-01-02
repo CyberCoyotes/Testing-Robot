@@ -1,7 +1,5 @@
 package org.usfirst.frc.team3603.robot;
 
-import javax.sound.sampled.AudioFormat.Encoding;
-
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.IterativeRobot;
@@ -10,6 +8,7 @@ import edu.wpi.first.wpilibj.PIDController;
 import edu.wpi.first.wpilibj.PIDOutput;
 import edu.wpi.first.wpilibj.PIDSource;
 import edu.wpi.first.wpilibj.RobotDrive;
+import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.Victor;
 import edu.wpi.first.wpilibj.CounterBase.EncodingType;
 import edu.wpi.first.wpilibj.Encoder;
@@ -29,6 +28,9 @@ public class Robot extends IterativeRobot {
 	Encoder enc = new Encoder(9, 8, false, EncodingType.k2X);
 	PIDController gyroCont = new PIDController(0.03, 0, 0, (PIDSource) gyro, (PIDOutput) mainDrive);
 	
+	Servo servo = new Servo(1);
+	
+	
 	Vision vision = new Vision();
 	double rate;
 	
@@ -41,11 +43,14 @@ public class Robot extends IterativeRobot {
     	
     	mainDrive.setSafetyEnabled(false);
     	lidar = new Lidar(I2C.Port.kMXP);
+    	lidar.start();
     	enc.setDistancePerPulse((5.0*Math.PI)/256.0);
+    	
+    	servo.setAngle(90);
     	
     	Thread rateFinder = new Thread(() -> {
     		while(true) {
-    			double d1 = enc.get()/256.0*5.0*Math.PI;
+    			double d1 = (double) enc.get()/256.0*5.0*Math.PI;
     			d1 = d1/5280.0;
     			try {
 					Thread.sleep(10);
@@ -54,7 +59,7 @@ public class Robot extends IterativeRobot {
     			double d2 = enc.get()/256.0*5.0*Math.PI;
     			d2 = d2/5280.0;
     			double r = (d2-d1)/0.01;
-    			r = r/60/60;
+    			r = r/60.0/60.0;
     			rate = r;
     		}
     	});
@@ -86,7 +91,11 @@ public class Robot extends IterativeRobot {
 		if(joy1.getRawButton(3)) {
 			gyroCont.enable();
 		}
+		servo.setAngle(vision.getAngle());
 		read();
+		if(!vision.isWorking()) {
+			vision.retry();
+		}
 	}
 	
 	boolean driveThreshold(double x, double y, double rot) {
@@ -104,9 +113,6 @@ public class Robot extends IterativeRobot {
 	public void read() {
 		SmartDashboard.putNumber("PIDOutput1", gyroCont.get());
 		SmartDashboard.putNumber("Lidar Distance", lidar.getDistance());
-		SmartDashboard.putBoolean("Succes", lidar.success);
-		SmartDashboard.putBoolean("Success2", lidar.success2);
 		SmartDashboard.putNumber("MPH", rate);
 	}
 }
-
