@@ -4,11 +4,11 @@ import java.util.Set;
 
 import edu.wpi.first.wpilibj.networktables.NetworkTable;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.tables.TableKeyNotDefinedException;
 
 @SuppressWarnings("deprecation")
 public class Vision {
 	NetworkTable table; //Create a table
+	double def[] = new double[0];
 	boolean working;
 	
 	public Vision() {
@@ -46,7 +46,7 @@ public class Vision {
 	 */
 	public double getX() {
 		try {
-			double[] x = table.getNumberArray("centerX"); //get the x values from the Kangaroo
+			double[] x = table.getNumberArray("centerX", def); //get the x values from the Kangaroo
 			if(x.length != 0) { //If there is one or more objects...
 				int numObjects = x.length; //Get the number of x's
 				double average = 0; //Create an integer to store the average x-coordinate
@@ -58,10 +58,6 @@ public class Vision {
 			} else { //Otherwise there are no contours
 				return -5; //If there are no contours, return -5
 			}
-		} catch(TableKeyNotDefinedException ex) { //If the key doesn't exist...
-			ex.printStackTrace();
-			SmartDashboard.putString("Vision Status", "Table key not defined");
-			return -3;
 		} catch(ArrayIndexOutOfBoundsException ex) { //If there aren't any values
 			ex.printStackTrace();
 			SmartDashboard.putString("Vision Status", "Array index out of bounds");
@@ -89,13 +85,7 @@ public class Vision {
 	}
 	
 	public double getNumContours() { //Gives how many contours are found
-		try {
-			double[] x = table.getNumberArray("centerX");
-			return x.length;
-		} catch (TableKeyNotDefinedException ex){
-			ex.printStackTrace();
-			SmartDashboard.putString("Vision Status", "Table key not defined");
-			return 0;
-		}
+		double[] x = table.getNumberArray("centerX", def);
+		return x.length;
 	}
 }
